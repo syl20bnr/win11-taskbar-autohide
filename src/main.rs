@@ -80,17 +80,19 @@ mod app {
                 ..Default::default()
             };
 
-            let current_state = SHAppBarMessage(ABM_GETSTATE, &mut appbar) as u32;
-            let should_disable_autohide = current_state & ABS_AUTOHIDE != 0;
+            let current_state = SHAppBarMessage(ABM_GETSTATE, &mut appbar as *mut APPBARDATA);
+            let autohide_flag = ABS_AUTOHIDE as usize;
+            let should_disable_autohide = current_state & autohide_flag != 0;
             set_dynamic_icon(!should_disable_autohide);
+
             let toggled_state = if should_disable_autohide {
-                current_state & !ABS_AUTOHIDE
+                current_state & !autohide_flag
             } else {
-                current_state | ABS_AUTOHIDE
+                current_state | autohide_flag
             };
 
             appbar.lParam = LPARAM(toggled_state as isize);
-            let _ = SHAppBarMessage(ABM_SETSTATE, &mut appbar);
+            let _ = SHAppBarMessage(ABM_SETSTATE, &mut appbar as *mut APPBARDATA);
         }
     }
 }
